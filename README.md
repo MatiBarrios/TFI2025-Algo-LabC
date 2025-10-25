@@ -1,7 +1,5 @@
 # Navegación Robótica
 
-Este archivo está recontra escrito por una IA jajajaja
-
 Este proyecto simula la navegación autónoma de un robot en un entorno bidimensional mapeado. Utiliza algoritmos de búsqueda para encontrar la ruta más corta hacia un destino, teniendo en cuenta los obstáculos y los pesos de cada celda en el mapa.
 
 ## Estructura del Proyecto
