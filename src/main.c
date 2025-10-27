@@ -10,6 +10,7 @@
 
 int main() {
 
+    int c;
     // Semilla global para mapas aleatorios
     srand((unsigned) time(NULL));
 
@@ -26,6 +27,10 @@ int main() {
 
     if (opcion == 1) {
         mostrar_mejores_archivo();
+        while ((c = getchar()) != '\n' && c != EOF) {}
+        
+        printf("Programa finalizado, presione Enter para continuar");
+        getchar();
         return 0;
     } else if (opcion != 2) {
         mostrar_error("Opcion invalida");
@@ -40,7 +45,6 @@ int main() {
     }
 
     // limpiar buffer ESTO VA A SALIR BANDA DE VECES EN EL MAIN PERO ES PORQUE UN CANCER TIENE EL SCANF
-    int c;
     while ((c = getchar()) != '\n' && c != EOF) {}
 
     for (int ronda = 1; ronda <= num_rondas; ronda++) {
