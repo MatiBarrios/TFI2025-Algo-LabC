@@ -171,3 +171,48 @@ Posicion* encontrarRuta(const Mapa* mapa,
     *longitudRuta = len;
     return ruta;
 }
+
+void calcularDistanciasDesde(const Mapa* mapa, int inicioX, int inicioY, int distancias[MAX_FILAS][MAX_COLUMNAS]) {
+    // Inicializar distancias y predecesores
+    for (int i = 0; i < mapa->filas; i++) {
+        for (int j = 0; j < mapa->columnas; j++) {
+            distancias[i][j] = INF;
+            predX[i][j] = -1;
+            predY[i][j] = -1;
+        }
+    }
+
+    if (inicioX < 0 || inicioX >= mapa->filas || inicioY < 0 || inicioY >= mapa->columnas) return;
+    if (mapa->datos[inicioX][inicioY] != SALIDA) return; // Se espera una salida como fuente
+
+    // Heap con capacidad suficiente
+    MinHeap heap;
+    if (!heap_init(&heap, MAX_FILAS * MAX_COLUMNAS + 5)) return;
+
+    // Insertar solo la salida seleccionada como origen (distancia 0)
+    distancias[inicioX][inicioY] = 0;
+    predX[inicioX][inicioY] = -1;
+    predY[inicioX][inicioY] = -1;
+    heap_push(&heap, inicioX, inicioY, 0);
+
+    // Dijkstra (mismo cuerpo que calcularDistancias)
+    HeapNode cur;
+    while (heap_pop(&heap, &cur)) {
+        if (cur.d != distancias[cur.x][cur.y]) continue;
+        for (int k = 0; k < 4; k++) {
+            int nx = cur.x + DX[k];
+            int ny = cur.y + DY[k];
+            if (!esValida(mapa, nx, ny)) continue;
+            int peso = (mapa->datos[nx][ny] == SALIDA) ? 0 : mapa->datos[nx][ny];
+            int nd = cur.d + peso;
+            if (nd < distancias[nx][ny]) {
+                distancias[nx][ny] = nd;
+                predX[nx][ny] = cur.x;
+                predY[nx][ny] = cur.y;
+                heap_push(&heap, nx, ny, nd);
+            }
+        }
+    }
+        //ME MOLESTA UNA BANDA LA CANTIDAD DE COMENTARIOS QUE PONE ESTA COSA MIENTRAS VOY ESCRIBIENDO AHHHHHHHHHHHHHHH
+    heap_free(&heap);
+}

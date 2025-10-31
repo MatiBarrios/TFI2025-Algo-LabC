@@ -94,10 +94,45 @@ int main() {
             // Mostrar mapa
             mostrarMapa(pMapa);
 
-            // Calcular distancias desde todas las salidas
+            // Preguntar si se desea elegir una salida destino concreta
             int distancias[MAX_FILAS][MAX_COLUMNAS];
-            calcularDistancias(pMapa, distancias);
+            int elegirSalida = 0;
+            printf("Desea elegir una salida destino concreta? (1=si, 0=no): ");
+            if (scanf("%d", &elegirSalida) != 1) elegirSalida = 0;
+            int ch; while ((ch = getchar()) != '\n' && ch != EOF) {}
 
+            // Si elige una salida específica, listarlas y pedir selección
+            if (elegirSalida) {
+                int ex[MAX_FILAS * MAX_COLUMNAS];
+                int ey[MAX_FILAS * MAX_COLUMNAS];
+                int nEx = 0;
+                for (int i = 0; i < pMapa->filas; i++) {
+                    for (int j = 0; j < pMapa->columnas; j++) {
+                        if (pMapa->datos[i][j] == SALIDA) {
+                            ex[nEx] = i; ey[nEx] = j;
+                            printf("%d) Salida en (%d,%d)\n", nEx + 1, i, j);
+                            nEx++;
+                        }
+                    }
+                }
+                if (nEx == 0) {
+                    printf("No hay salidas en el mapa.\n");
+                    calcularDistancias(pMapa, distancias); // fallback
+                } else {
+                    int idx = 0;
+                    printf("Seleccione numero de salida (1-%d): ", nEx);
+                    if (scanf("%d", &idx) != 1 || idx < 1 || idx > nEx) {
+                        printf("Seleccion invalida, usando todas las salidas.\n");
+                        calcularDistancias(pMapa, distancias);
+                    } else {
+                        int sx = ex[idx - 1], sy = ey[idx - 1];
+                        calcularDistanciasDesde(pMapa, sx, sy, distancias);
+                        printf("Calculo de distancias hecho desde la salida (%d,%d)\n", sx, sy);
+                    }
+                }
+            } else {
+                calcularDistancias(pMapa, distancias);
+            }
             // Solicitar cantidad de jugadores
             int numJugadores;
             printf("\n¿Cuantos jugadores? (1-%d): ", MAX_JUGADORES);
