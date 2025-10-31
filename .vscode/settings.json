@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "mapa.h": "c"
+        "mapa.h": "c",
+        "time.h": "c"
     }
 }

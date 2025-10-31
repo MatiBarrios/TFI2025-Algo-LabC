@@ -1,179 +1,164 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "tipos.h"
 #include "mapa.h"
 #include "rutas.h"
 #include "jugadores.h"
 #include "io.h"
+#include "tipos.h"
 
 int main() {
+    printf("|-------------------------------------|\n");
+    printf("|   SISTEMA DE NAVEGACION ESTELAR    |\n");
+    printf("|-------------------------------------|\n");
 
-    int c;
-    // Semilla global para mapas aleatorios
-    srand((unsigned) time(NULL));
-
-    printf("Menu inicial:\n");
-    printf("1) Ver archivo con mejores posiciones\n");
-    printf("2) Jugar (nuevas rondas)\n");
-    printf("Seleccione una opcion (1-2): ");
-
-    int opcion = 0;
-    if (scanf("%d", &opcion) != 1) {
-        mostrar_error("Entrada invalida");
-        return 1;
-    }
-
-    if (opcion == 1) {
-        mostrar_mejores_archivo();
-        while ((c = getchar()) != '\n' && c != EOF) {}
+    int opcionMenu;
+    do {
+        printf("\n----MENu----\n");
+        printf("1. Ver mejores resultados guardados\n");
+        printf("2. Jugar una ronda\n");
+        printf("0. Salir\n"); //se puede usar ctrl+C pero dio error en el anterior trabajo
+        printf("Seleccione alguno: ");
         
-        printf("Programa finalizado, presione Enter para continuar");
-        getchar();
-        return 0;
-    } else if (opcion != 2) {
-        mostrar_error("Opcion invalida");
-        return 1;
-    }
-
-    int num_rondas = 1;
-    printf("Ingrese cantidad de rondas a jugar: ");
-    if (scanf("%d", &num_rondas) != 1 || num_rondas < 1) {
-        mostrar_error("Cantidad de rondas invalida");
-        return 1;
-    }
-
-    // limpiar buffer ESTO VA A SALIR BANDA DE VECES EN EL MAIN PERO ES PORQUE UN CANCER TIENE EL SCANF
-    while ((c = getchar()) != '\n' && c != EOF) {}
-
-    for (int ronda = 1; ronda <= num_rondas; ronda++) {
-        printf("\n=== Ronda %d ===\n", ronda);
-
-        // elegir mapa: aleatorio 10x10 o leer archivo
-        printf("Usar mapa aleatorio 10x10? (1=si, 0=no): ");
-        int usar_aleatorio = 0;
-        if (scanf("%d", &usar_aleatorio) != 1) usar_aleatorio = 0;
-
-        // limpiar buffer
-        while ((c = getchar()) != '\n' && c != EOF) {}
-
-        Mapa* mapa = NULL;
-        if (usar_aleatorio) {
-            mapa = generarMapaAleatorio(10, 10);
-            if (!mapa) {
-                mostrar_error("No se pudo generar mapa aleatorio");
-                return 1;
-            }
-        } else {
-            // preguntar si usar archivo por defecto o pedir ruta
-            printf("Usar mapa por defecto '%s'? (1=si,0=no): ", "datos/ejemplos_entrada.txt");
-            int usar_def = 1;
-            if (scanf("%d", &usar_def) != 1) usar_def = 1;
-            while ((c = getchar()) != '\n' && c != EOF) {}
-
-            if (usar_def) {
-                mapa = cargarMapa("datos/ejemplos_entrada.txt");
-            } else {
-                char ruta[256];
-                printf("Ingrese ruta al archivo de mapa: ");
-                if (fgets(ruta, sizeof(ruta), stdin)) {
-                    // quitar newline
-                    ruta[strcspn(ruta, "\r\n")] = '\0';
-                    mapa = cargarMapa(ruta);
-                } else {
-                    mostrar_error("Entrada invalida de ruta");
-                }
-            }
-
-            if (!mapa) {
-                mostrar_error("No se pudo cargar el mapa solicitado");
-                return 1;
-            }
-        }
-
-        // mostrar mapa
-        mostrarMapa(mapa);
-
-        // calcular distancias
-        int distancias[MAX_FILAS][MAX_COLUMNAS];
-        calcularDistancias(mapa, distancias);
-
-        // pedir jugadores
-        int num_jugadores = 0;
-        printf("\nIngrese la cantidad de jugadores (1 - %d): ", MAX_JUGADORES);
-        if (scanf("%d", &num_jugadores) != 1 || num_jugadores < 1 || num_jugadores > MAX_JUGADORES) {
-            mostrar_error("Cantidad de jugadores inválida");
-            // limpiar y continuar a la siguiente ronda
-            free(mapa);
+        if (scanf("%d", &opcionMenu) != 1) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            printf("X Opcion invalida\n");
             continue;
         }
 
-        // limpiar buffer
-        while ((c = getchar()) != '\n' && c != EOF) {}
-
-        Jugador* jugadores = malloc(sizeof(Jugador) * num_jugadores);
-        if (!jugadores) {
-            mostrar_error("No se pudo reservar memoria para jugadores");
-            free(mapa);
-            return 1;
-        }
-
-        inicializarJugadores(jugadores, num_jugadores);
-
-        // Leer posiciones
-        for (int i = 0; i < num_jugadores; i++) {
-            int x = -1, y = -1;
-            printf("\nJugador %d:\n", i + 1);
-            leer_posicion_jugador(&x, &y);
-
-            if (!esValida(mapa, x, y)) {
-                mostrar_error("Posición inválida; se pedira nuevamente");
-                i--;
+        if (opcionMenu == 1) {
+            mostrar_mejores_archivo();
+        } 
+        else if (opcionMenu == 2) {
+            // Selección de mapa
+            printf("\n--- SELECCIONAR MAPA ---\n");
+            printf("1. Cargar mapa desde archivo\n");
+            printf("2. Generar mapa aleatorio\n");
+            printf("Opcin: ");
+            
+            int opcionMapa;
+            if (scanf("%d", &opcionMapa) != 1) {
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF);
+                printf("X Opc10n invalida\n");
                 continue;
             }
 
-            asignarPosicionJugador(&jugadores[i], x, y);
-        }
+            Mapa mapa;
+            Mapa* pMapa = NULL;
+            CodigoError errorCarga = OK;
 
-        // calcular rutas y encontrar ganador
-        calcularRutasJugadores(jugadores, num_jugadores, mapa, distancias);
-        Jugador* ganador = encontrarGanador(jugadores, num_jugadores);
-
-        if (ganador && ganador->distanciaTotal != INF) {
-            printf("\n¡El jugador %d es el ganador de la ronda %d!\n", ganador->id, ronda);
-            printf("Distancia total: %d\n", ganador->distanciaTotal);
-            printf("Ruta: ");
-            for (int i = 0; i < ganador->longitudRuta; i++) {
-                printf("(%d,%d)", ganador->ruta[i].x, ganador->ruta[i].y);
-                if (i < ganador->longitudRuta - 1) printf(" -> ");
+            if (opcionMapa == 1) {
+                //COLOCAR AQUI EL MAPA POR DEFECTO
+                //SI LEE ESTO PROFE, ACÁ ES DONDE VA ESE MAPA DE PRUEBA
+                printf("Ingrese ruta del archivo (ej: datos/ejemplos_entrada.txt): ");
+                char ruta[256];
+                scanf("%255s", ruta);
+                
+                errorCarga = cargarMapa(ruta, &mapa);
+                if (errorCarga == OK) {
+                    pMapa = &mapa;
+                } else {
+                    mostrar_error(errorCarga);
+                    continue;
+                }
+            } 
+            else if (opcionMapa == 2) {
+                int f, c;
+                printf("Ingrese filas y columnas (ej: 10 10): ");
+                if (scanf("%d %d", &f, &c) != 2 || f <= 0 || c <= 0 || 
+                    f > MAX_FILAS || c > MAX_COLUMNAS) {
+                    printf("X Dimensiones invalidas\n");
+                    continue;
+                }
+                
+                pMapa = generarMapaAleatorio(f, c);
+                if (!pMapa) {
+                    mostrar_error(ERROR_MEMORIA);
+                    continue;
+                }
+            } 
+            else {
+                printf("X Opcion invalida\n");
+                continue;
             }
-            printf("\n");
 
-            // guardar mejor jugador de la ronda
-            guardar_mejor_jugador(ganador, ronda);
-        } else {
-            printf("\nNingún jugador encontró una ruta válida en esta ronda.\n");
+            // Mostrar mapa
+            mostrarMapa(pMapa);
+
+            // Calcular distancias desde todas las salidas
+            int distancias[MAX_FILAS][MAX_COLUMNAS];
+            calcularDistancias(pMapa, distancias);
+
+            // Solicitar número de jugadores
+            int numJugadores;
+            printf("\n¿Cuantos jugadores? (1-%d): ", MAX_JUGADORES);
+            if (scanf("%d", &numJugadores) != 1 || numJugadores < 1 || numJugadores > MAX_JUGADORES) {
+                printf("X Cantidad de jugadores invalida\n");
+                if (opcionMapa == 2) liberarMapa(pMapa);
+                continue;
+            }
+
+            // Inicializar jugadores
+            Jugador jugadores[MAX_JUGADORES];
+            inicializarJugadores(jugadores, numJugadores);
+
+            // Leer posiciones de cada jugador
+            int todosValidos = 1;
+            for (int i = 0; i < numJugadores; i++) {
+                int x, y;
+                CodigoError error = leer_posicion_jugador(pMapa, &x, &y, i + 1);
+                
+                if (error != OK) {
+                    mostrar_error(error);
+                    todosValidos = 0;
+                    break;
+                }
+                
+                error = asignarPosicionJugador(&jugadores[i], x, y, pMapa);
+                if (error != OK) {
+                    mostrar_error(error);
+                    todosValidos = 0;
+                    break;
+                }
+            }
+
+            if (!todosValidos) {
+                liberarJugadores(jugadores, numJugadores);
+                if (opcionMapa == 2) liberarMapa(pMapa);
+                continue;
+            }
+
+            // Calcular rutas
+            calcularRutasJugadores(jugadores, numJugadores, pMapa, distancias);
+
+            // Mostrar resultados
+            printf("\n|--------------------------------------|\n");
+            printf("|          RESULTADOS                  |\n");
+            printf("|--------------------------------------|\n");
+
+            for (int i = 0; i < numJugadores; i++) {
+                mostrar_resultado_jugador(&jugadores[i], pMapa);
+            }
+
+            // Determinar ganador
+            Jugador* ganador = encontrarGanador(jugadores, numJugadores);
+            
+            if (ganador) {
+                printf("\n:D GANADOR: Jugador %d con distancia %d\n", 
+                       ganador->id, ganador->distanciaTotal);
+                guardar_mejor_jugador(ganador);
+            } else {
+                printf("\nX  Nadie gano\n");
+            }
+
+            // Liberar memoria
+            liberarJugadores(jugadores, numJugadores);
+            if (opcionMapa == 2) liberarMapa(pMapa);
         }
 
-        // liberar memoria de jugadores y mapa
-        for (int i = 0; i < num_jugadores; i++) {
-            if (jugadores[i].ruta != NULL) free(jugadores[i].ruta);
-        }
-        free(jugadores);
-        free(mapa);
+    } while (opcionMenu != 0);
 
-        // opcional: pausar entre rondas
-        printf("\nRonda %d finalizada.\n", ronda);
-    } // fin rondas
-
-    // esperar antes de salir
-    printf("\nTodas las rondas finalizadas.\n");
-
-    while ((c = getchar()) != '\n' && c != EOF) {}
-
-    printf("Programa finalizado, presione Enter para continuar");
-    getchar();
-    
+    printf("\nENIE\n");
     return 0;
 }

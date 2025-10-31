@@ -4,11 +4,12 @@
 #include "tipos.h"
 #include "mapa.h"
 
-// Calcula las distancias mínimas desde cada punto hasta la salida más cercana
+// Calcula distancias mínimas desde TODAS las salidas (0) a cada celda
 void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS]);
 
-// Encuentra la ruta óptima desde un punto inicial hasta la salida más cercana
-Posicion* encontrarRuta(const Mapa* mapa, const int distancias[MAX_FILAS][MAX_COLUMNAS], 
-                       int inicioX, int inicioY, int* longitudRuta);
+// Reconstruye la ruta desde (inicioX,inicioY) hasta la salida más cercana
+Posicion* encontrarRuta(const Mapa* mapa,
+                        const int distancias[MAX_FILAS][MAX_COLUMNAS],
+                        int inicioX, int inicioY, int* longitudRuta);
 
 #endif

@@ -3,15 +3,12 @@
 
 #include "tipos.h"
 #include "mapa.h"
+#include "jugadores.h"
 
-void leer_posicion_jugador(int *x, int *y);
-void mostrar_resultado_jugador(const Jugador* jugador);
-void mostrar_error(const char *mensaje);
-void mostrarMapaIO(const Mapa* mapa);
-
-// Funciones para manejo de mejores jugadores
-// Esto me sacó de quicio
-void guardar_mejor_jugador(const Jugador* jugador, int ronda);
-void mostrar_mejores_archivo(void);
+CodigoError leer_posicion_jugador(const Mapa* mapa, int* x, int* y, int jugadorId);
+void mostrar_resultado_jugador(const Jugador* jugador, const Mapa* mapa);
+void mostrar_error(CodigoError codigo);
+void guardar_mejor_jugador(const Jugador* jugador);
+void mostrar_mejores_archivo();
 
 #endif

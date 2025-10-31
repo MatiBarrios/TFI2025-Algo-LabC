@@ -1,73 +1,81 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "rutas.h"
+#include "mapa.h"
 
-// Nodo para heap mínimo
-typedef struct {
-    int x, y;
-    int distancia;
-} NodoCola;
-
-// Movimientos 4-direcciones
-static const int dx[] = {-1, 0, 1, 0};
-static const int dy[] = {0, 1, 0, -1};
-
-// Cola de prioridad (heap mínimo)
-typedef struct {
-    NodoCola datos[MAX_FILAS * MAX_COLUMNAS];
-    int tamano;
-} ColaPrioridad;
-
-static void inicializarCola(ColaPrioridad* cola) {
-    cola->tamano = 0;
-}
-
-static void insertar(ColaPrioridad* cola, int x, int y, int distancia) {
-    int i = cola->tamano++;
-    // subir en el heap
-    while (i > 0) {
-        int padre = (i - 1) / 2;
-        if (cola->datos[padre].distancia <= distancia) break;
-        cola->datos[i] = cola->datos[padre];
-        i = padre;
-    }
-    cola->datos[i].x = x;
-    cola->datos[i].y = y;
-    cola->datos[i].distancia = distancia;
-}
-
-static NodoCola extraerMinimo(ColaPrioridad* cola) {
-    NodoCola vacio = { -1, -1, INF };
-    if (cola->tamano == 0) return vacio;
-
-    NodoCola resultado = cola->datos[0];
-    NodoCola ultimo = cola->datos[--cola->tamano];
-
-    int i = 0;
-    while (2 * i + 1 < cola->tamano) {
-        int hijoIzq = 2 * i + 1;
-        int hijoDer = 2 * i + 2;
-        int hijo = hijoIzq;
-        if (hijoDer < cola->tamano && cola->datos[hijoDer].distancia < cola->datos[hijoIzq].distancia)
-            hijo = hijoDer;
-        if (ultimo.distancia <= cola->datos[hijo].distancia) break;
-        cola->datos[i] = cola->datos[hijo];
-        i = hijo;
-    }
-    cola->datos[i] = ultimo;
-    return resultado;
-}
-
-// Predecesores para reconstrucción (llenados en calcularDistancias)
+// Predecesores para reconstruir ruta
 static int predX[MAX_FILAS][MAX_COLUMNAS];
 static int predY[MAX_FILAS][MAX_COLUMNAS];
 
-void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS]) {
-    ColaPrioridad cola;
-    inicializarCola(&cola);
+// Movimientos 4-dir
+static const int DX[4] = {-1, 0, 1, 0};
+static const int DY[4] = {0, 1, 0, -1};
 
-    // inicializar
+// Cola de prioridad mínima (bin-heap) para Dijkstra
+typedef struct {
+    int x, y, d;
+} HeapNode;
+
+typedef struct {
+    HeapNode* a;
+    int n;       // tamaño actual
+    int cap;     // capacidad
+} MinHeap;
+
+static void heap_swap(HeapNode* p, HeapNode* q) { HeapNode t = *p; *p = *q; *q = t; }
+
+static void heap_up(MinHeap* h, int i) {
+    while (i > 0) {
+        int p = (i - 1) / 2;
+        if (h->a[p].d <= h->a[i].d) break;
+        heap_swap(&h->a[p], &h->a[i]);
+        i = p;
+    }
+}
+
+static void heap_down(MinHeap* h, int i) {
+    while (1) {
+        int l = 2 * i + 1, r = 2 * i + 2, m = i;
+        if (l < h->n && h->a[l].d < h->a[m].d) m = l;
+        if (r < h->n && h->a[r].d < h->a[m].d) m = r;
+        if (m == i) break;
+        heap_swap(&h->a[i], &h->a[m]);
+        i = m;
+    }
+}
+
+static int heap_init(MinHeap* h, int cap) {
+    h->a = (HeapNode*)malloc(sizeof(HeapNode) * cap);
+    h->n = 0;
+    h->cap = cap;
+    return h->a != NULL;
+}
+
+static void heap_push(MinHeap* h, int x, int y, int d) {
+    if (h->n >= h->cap) return; // silenciar overflow (cap suficiente)
+    h->a[h->n] = (HeapNode){x, y, d};
+    heap_up(h, h->n);
+    h->n++;
+}
+
+static int heap_pop(MinHeap* h, HeapNode* out) {
+    if (h->n == 0) return 0;
+    *out = h->a[0];
+    h->n--;
+    if (h->n > 0) {
+        h->a[0] = h->a[h->n];
+        heap_down(h, 0);
+    }
+    return 1;
+}
+
+static void heap_free(MinHeap* h) {
+    free(h->a);
+    h->a = NULL; h->n = h->cap = 0;
+}
+
+void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS]) {
+    // Inicializar distancias y predecesores
     for (int i = 0; i < mapa->filas; i++) {
         for (int j = 0; j < mapa->columnas; j++) {
             distancias[i][j] = INF;
@@ -76,98 +84,87 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
         }
     }
 
-    // insertar todas las salidas (celdas con peso 0)
+    // Heap con capacidad suficiente
+    MinHeap heap;
+    if (!heap_init(&heap, MAX_FILAS * MAX_COLUMNAS + 5)) {
+        // Si no hay memoria, dejamos distancias=INF y retornamos
+        return;
+    }
+
+    // Insertar todas las salidas como origen (distancia 0)
     for (int i = 0; i < mapa->filas; i++) {
         for (int j = 0; j < mapa->columnas; j++) {
-            if (mapa->datos[i][j] == 0) {
+            if (mapa->datos[i][j] == SALIDA) {
                 distancias[i][j] = 0;
-                predX[i][j] = -1; // marca salida
+                predX[i][j] = -1;
                 predY[i][j] = -1;
-                insertar(&cola, i, j, 0);
+                heap_push(&heap, i, j, 0);
             }
         }
     }
 
-    // Dijkstra multi-origen (coste mover u->v = peso de v)
-    while (cola.tamano > 0) {
-        NodoCola actual = extraerMinimo(&cola);
-        if (actual.x < 0) break; // safety
+    // Dijkstra
+    HeapNode cur;
+    while (heap_pop(&heap, &cur)) {
+        if (cur.d != distancias[cur.x][cur.y]) continue;
 
-        if (actual.distancia > distancias[actual.x][actual.y]) continue;
+        for (int k = 0; k < 4; k++) {
+            int nx = cur.x + DX[k];
+            int ny = cur.y + DY[k];
+            if (!esValida(mapa, nx, ny)) continue;           // descarta fuera de rango u obstáculo
 
-        for (int dir = 0; dir < 4; dir++) {
-            int nx = actual.x + dx[dir];
-            int ny = actual.y + dy[dir];
-
-            if (!esValida(mapa, nx, ny)) continue;
-            if (mapa->datos[nx][ny] == -1) continue; // obstáculo
-
-            int pesoVecino = mapa->datos[nx][ny];
-            int nuevaDist = actual.distancia + pesoVecino;
-
-            if (nuevaDist < distancias[nx][ny]) {
-                distancias[nx][ny] = nuevaDist;
-                predX[nx][ny] = actual.x;
-                predY[nx][ny] = actual.y;
-                insertar(&cola, nx, ny, nuevaDist);
+            int peso = (mapa->datos[nx][ny] == SALIDA) ? 0 : mapa->datos[nx][ny];
+            int nd = cur.d + peso;
+            if (nd < distancias[nx][ny]) {
+                distancias[nx][ny] = nd;
+                predX[nx][ny] = cur.x;
+                predY[nx][ny] = cur.y;
+                heap_push(&heap, nx, ny, nd);
             }
         }
     }
+
+    heap_free(&heap);
 }
 
-Posicion* encontrarRuta(const Mapa* mapa, const int distancias[MAX_FILAS][MAX_COLUMNAS],
-                       int inicioX, int inicioY, int* longitudRuta) {
-    // validaciones
-    if (!esValida(mapa, inicioX, inicioY) || distancias[inicioX][inicioY] == INF) {
-        *longitudRuta = 0;
-        return NULL;
-    }
+Posicion* encontrarRuta(const Mapa* mapa,
+                        const int distancias[MAX_FILAS][MAX_COLUMNAS],
+                        int inicioX, int inicioY, int* longitudRuta) {
+    *longitudRuta = 0;
 
-    // reservar buffer para ruta
-    int cap = mapa->filas * mapa->columnas;
-    Posicion* ruta = malloc(sizeof(Posicion) * cap);
-    if (!ruta) {
-        *longitudRuta = 0;
-        return NULL;
-    }
+    if (!esValida(mapa, inicioX, inicioY)) return NULL;
+    if (distancias[inicioX][inicioY] == INF) return NULL;
+
+    int capacidad = mapa->filas * mapa->columnas;
+    Posicion* ruta = (Posicion*)malloc(sizeof(Posicion) * capacidad);
+    if (!ruta) return NULL;
 
     int len = 0;
-    int x = inicioX;
-    int y = inicioY;
+    int x = inicioX, y = inicioY;
 
-    // agregar inicio
-    ruta[len].x = x;
-    ruta[len].y = y;
-    len++;
+    // Agregar inicio
+    ruta[len++] = (Posicion){x, y};
 
-    // si inicio ya es salida
-    if (mapa->datos[x][y] == 0) {
+    // Si ya estamos en la salida
+    if (mapa->datos[x][y] == SALIDA) {
         *longitudRuta = len;
         return ruta;
     }
 
-    // seguir predecesores hacia la salida
+    // Seguir predecesores
     while (predX[x][y] != -1 && predY[x][y] != -1) {
         int nx = predX[x][y];
         int ny = predY[x][y];
 
-        // seguridad contra bucle infinito
-        if (len >= cap) break;
+        if (len >= capacidad) break;
+        ruta[len++] = (Posicion){nx, ny};
 
-        ruta[len].x = nx;
-        ruta[len].y = ny;
-        len++;
-
-        x = nx;
-        y = ny;
-
-        if (mapa->datos[x][y] == 0) break; // alcanzada salida
+        x = nx; y = ny;
+        if (mapa->datos[x][y] == SALIDA) break;
     }
 
-    // verificar que terminamos en una salida
-    if (mapa->datos[x][y] != 0) {
+    if (mapa->datos[x][y] != SALIDA) {
         free(ruta);
-        *longitudRuta = 0;
         return NULL;
     }
 
