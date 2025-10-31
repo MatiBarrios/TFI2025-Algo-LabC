@@ -11,6 +11,54 @@
 #include "io.h"
 #include "tipos.h"
 
+static void io_trim_nl(char* s) {
+    if (!s) return;
+    size_t l = strlen(s);
+    if (l && (s[l - 1] == '\n' || s[l - 1] == '\r')) s[l - 1] = '\0';
+}
+
+void io_leer_ruta_archivo(char* ruta, size_t n, const char* sugerida) {
+    // limpiar salto pendiente de scanf
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF) {}
+
+    printf("Ingrese ruta del archivo (ej: %s)\n", sugerida);
+    printf("[ENTER para usar por defecto: %s]: ", sugerida);
+
+    if (!fgets(ruta, (int)n, stdin)) {
+        // fallback
+        strncpy(ruta, sugerida, n);
+        ruta[n - 1] = '\0';
+        return;
+    }
+    io_trim_nl(ruta);
+    if (ruta[0] == '\0') {
+        strncpy(ruta, sugerida, n);
+        ruta[n - 1] = '\0';
+    }
+}
+
+CodigoError guardar_mapa_txt(const Mapa* mapa, const char* ruta) {
+    if (!mapa || !ruta) return ERROR_FORMATO_INVALIDO;
+
+    // Crear carpeta "data" si corresponde
+    // Esto es suficiente para data/ultimo_random.txt
+    MKDIR("data");
+
+    FILE* f = fopen(ruta, "w");
+    if (!f) return ERROR_ARCHIVO_NO_ENCONTRADO;
+
+    for (int i = 0; i < mapa->filas; i++) {
+        for (int j = 0; j < mapa->columnas; j++) {
+            if (j) fputc(' ', f);
+            fprintf(f, "%d", mapa->datos[i][j]);
+        }
+        fputc('\n', f);
+    }
+    fclose(f);
+    return OK;
+}
+
 CodigoError leer_posicion_jugador(const Mapa* mapa, int* x, int* y, int jugadorId) {
     printf("\n--- Jugador %d ---\n", jugadorId);
     printf("Ingrese coordenadas de inicio (fila columna): ");

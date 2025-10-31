@@ -51,10 +51,10 @@ int main() {
             if (opcionMapa == 1) {
                 //COLOCAR AQUI EL MAPA POR DEFECTO
                 //SI LEE ESTO PROFE, ACÁ ES DONDE VA ESE MAPA DE PRUEBA
-                printf("Ingrese ruta del archivo (ej: datos/ejemplos_entrada.txt): ");
+                // Sugerir por defecto: data/ejemplos_entrada.txt
                 char ruta[256];
-                scanf("%255s", ruta);
-                
+                io_leer_ruta_archivo(ruta, sizeof(ruta), "datos/ejemplos_entrada.txt");
+
                 errorCarga = cargarMapa(ruta, &mapa);
                 if (errorCarga == OK) {
                     pMapa = &mapa;
@@ -76,6 +76,14 @@ int main() {
                 if (!pMapa) {
                     mostrar_error(ERROR_MEMORIA);
                     continue;
+                }
+
+                // Guardar (sobrescribir/crear) el último mapa aleatorio
+                CodigoError ge = guardar_mapa_txt(pMapa, "datos/ultimo_random.txt");
+                if (ge == OK) {
+                    printf("Mapa aleatorio guardado en: datos/ultimo_random.txt\n");
+                } else {
+                    printf("No se pudo guardar el mapa aleatorio (datos/ultimo_random.txt)\n");
                 }
             } 
             else {
