@@ -8,16 +8,16 @@
 
 int main() {
     printf("|-------------------------------------|\n");
-    printf("|   SISTEMA DE NAVEGACION ESTELAR    |\n");
+    printf("|   SISTEMA DE NAVEGACION ESTELAR     |\n");
     printf("|-------------------------------------|\n");
 
     int opcionMenu;
     do {
-        printf("\n----MENu----\n");
-        printf("1. Ver mejores resultados guardados\n");
-        printf("2. Jugar una ronda\n");
-        printf("0. Salir\n"); //se puede usar ctrl+C pero dio error en el anterior trabajo
-        printf("Seleccione alguno: ");
+        printf("\n----------------- MENU -----------------\n");
+        printf("1. Ver resultados de las mejores jugadas\n");
+        printf("2. Comenzar partida\n");
+        printf("0. Salir\n"); //se puede salir con ctrl+C, pero dio error en la prueba anterior
+        printf("Seleccione una opcion: ");
         
         if (scanf("%d", &opcionMenu) != 1) {
             int c;
@@ -31,16 +31,16 @@ int main() {
         } 
         else if (opcionMenu == 2) {
             // Selección de mapa
-            printf("\n--- SELECCIONAR MAPA ---\n");
+            printf("\n----- SELECCIONAR MAPA -----\n");
             printf("1. Cargar mapa desde archivo\n");
             printf("2. Generar mapa aleatorio\n");
-            printf("Opcin: ");
+            printf("Seleccione una opcion: ");
             
             int opcionMapa;
             if (scanf("%d", &opcionMapa) != 1) {
                 int c;
                 while ((c = getchar()) != '\n' && c != EOF);
-                printf("X Opc10n invalida\n");
+                printf("X Opcion invalida\n");
                 continue;
             }
 
@@ -98,7 +98,7 @@ int main() {
             int distancias[MAX_FILAS][MAX_COLUMNAS];
             calcularDistancias(pMapa, distancias);
 
-            // Solicitar número de jugadores
+            // Solicitar cantidad de jugadores
             int numJugadores;
             printf("\n¿Cuantos jugadores? (1-%d): ", MAX_JUGADORES);
             if (scanf("%d", &numJugadores) != 1 || numJugadores < 1 || numJugadores > MAX_JUGADORES) {
