@@ -105,10 +105,10 @@ void mostrar_error(CodigoError codigo) {
     printf("\nERROR: ");
     switch (codigo) {
         case OK: return;
-        case ERROR_ARCHIVO_NO_ENCONTRADO: printf("No se pudo abrir el archivo del mapa\n"); break;
+        case ERROR_ARCHIVO_NO_ENCONTRADO: printf("No se pudo abrir el archivo\n"); break;
         case ERROR_FORMATO_INVALIDO: printf("Formato inválido (archivo o entrada)\n"); break;
         case ERROR_DIMENSIONES_INVALIDAS: printf("Dimensiones del mapa inválidas o mapa vacío\n"); break;
-        case ERROR_VALOR_CELDA_INVALIDO: printf("Valor de celda invalido (-1, 0 o 1-10)\n"); break;
+        case ERROR_VALOR_CELDA_INVALIDO: printf("Valor de celda invalido (-1, 0 o 1, -10)\n"); break;
         case ERROR_SIN_SALIDA: printf("El mapa no contiene ninguna salida (0)\n"); break;
         case ERROR_COORDENADAS_FUERA_RANGO: printf("Coordenadas fuera del rango del mapa\n"); break;
         case ERROR_POSICION_OBSTACULO: printf("No se puede iniciar en un obstaculo (#)\n"); break;
@@ -140,11 +140,11 @@ void mostrar_mejores_archivo() {
         printf("\nNo hay registros previos.\n");
         return;
     }
-    printf("\n========== MEJORES RESULTADOS ==========\n");
+    printf("\n================= MEJORES RESULTADOS =================\n");
     char linea[256];
     while (fgets(linea, sizeof(linea), f)) {
         printf("%s", linea);
     }
-    printf("=========================================\n");
+    printf("=======================================================\n");
     fclose(f);
 }

@@ -8,7 +8,7 @@
 
 int main() {
     printf("|-------------------------------------|\n");
-    printf("|   SISTEMA DE NAVEGACION ESTELAR     |\n");
+    printf("|    SISTEMA DE NAVEGACION ESTELAR    |\n");
     printf("|-------------------------------------|\n");
 
     int opcionMenu;
@@ -97,7 +97,7 @@ int main() {
             // Preguntar si se desea elegir una salida destino concreta
             int distancias[MAX_FILAS][MAX_COLUMNAS];
             int elegirSalida = 0;
-            printf("Desea elegir una salida destino concreta? (1=si, 0=no): ");
+            printf("Desea elegir una salida en especifico? (1=si, 0=no): ");
             if (scanf("%d", &elegirSalida) != 1) elegirSalida = 0;
             int ch; while ((ch = getchar()) != '\n' && ch != EOF) {}
 
@@ -135,7 +135,7 @@ int main() {
             }
             // Solicitar cantidad de jugadores
             int numJugadores;
-            printf("\n¿Cuantos jugadores? (1-%d): ", MAX_JUGADORES);
+            printf("\nIngrese la cantidad de jugadores (1-%d): ", MAX_JUGADORES);
             if (scanf("%d", &numJugadores) != 1 || numJugadores < 1 || numJugadores > MAX_JUGADORES) {
                 printf("X Cantidad de jugadores invalida\n");
                 if (opcionMapa == 2) liberarMapa(pMapa);
@@ -177,7 +177,7 @@ int main() {
 
             // Mostrar resultados
             printf("\n|--------------------------------------|\n");
-            printf("|          RESULTADOS                  |\n");
+            printf("|              RESULTADOS              |\n");
             printf("|--------------------------------------|\n");
 
             for (int i = 0; i < numJugadores; i++) {
