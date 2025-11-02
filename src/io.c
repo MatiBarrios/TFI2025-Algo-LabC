@@ -41,9 +41,9 @@ void io_leer_ruta_archivo(char* ruta, size_t n, const char* sugerida) {
 CodigoError guardar_mapa_txt(const Mapa* mapa, const char* ruta) {
     if (!mapa || !ruta) return ERROR_FORMATO_INVALIDO;
 
-    // Crear carpeta "data" si corresponde
-    // Esto es suficiente para data/ultimo_random.txt
-    MKDIR("data");
+    // Crear carpeta "datos" si corresponde
+    // Esto es suficiente para datos/ultimo_random.txt
+    MKDIR("datos");
 
     FILE* f = fopen(ruta, "w");
     if (!f) return ERROR_ARCHIVO_NO_ENCONTRADO;
