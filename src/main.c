@@ -201,7 +201,7 @@ int main() {
                     nw, jugadores[idx0].distanciaTotal, jugadores[idx0].longitudRuta);
 
 
-                printf("Ganadores: ");
+                printf("Ganadores: \n");
                 for (int k = 0; k < nw; k++) {
                     int idx = winners[k];
                     printf("%d%s", jugadores[idx].id, (k + 1 < nw) ? ", " : "\n");

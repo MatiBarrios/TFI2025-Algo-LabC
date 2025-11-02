@@ -125,6 +125,9 @@ Mapa* generarMapaAleatorio(int filas, int columnas) {
                 }
             }
         }
+
+        // Asegurar que la celda (0,0) no sea obstáculo para facilitar acceso
+        mapa->datos[0][0] = 0;
         intentos++;
     }
 

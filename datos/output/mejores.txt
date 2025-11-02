@@ -9,3 +9,8 @@ Jugador 2 | Inicio: (2,0) | Distancia: 2  | Pasos: 3
 Jugador 1 | Inicio: (3,2) | Distancia: 11 | Pasos: 6
 Jugador 2 | Inicio: (3,2) | Distancia: 11 | Pasos: 6
 Jugador 3 | Inicio: (1,1) | Distancia: 1  | Pasos: 2
+Jugador 1 | Inicio: (4,4) | Distancia: 13 | Pasos: 7
+Jugador 2 | Inicio: (4,4) | Distancia: 13 | Pasos: 7
+Jugador 1 | Inicio: (4,4) | Distancia: 3 | Pasos: 4
+Jugador 2 | Inicio: (5,5) | Distancia: 3 | Pasos: 4
+Jugador 5 | Inicio: (3,6) | Distancia: 18 | Pasos: 10
