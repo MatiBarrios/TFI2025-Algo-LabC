@@ -215,7 +215,7 @@ void calcularDistanciasDesde(const Mapa* mapa, int inicioX, int inicioY, int dis
             }
         }
     }
-        //ME MOLESTA UNA BANDA LA CANTIDAD DE COMENTARIOS QUE PONE ESTA COSA MIENTRAS VOY ESCRIBIENDO AHHHHHHHHHHHHHHH
+
     heap_free(&heap);
 }
 
@@ -245,7 +245,7 @@ int determinar_ganadores(Jugador* jugadores, int num_jugadores, int indices[], i
         if (jugadores[i].distanciaTotal == bestDist) {
             int steps = (jugadores[i].longitudRuta > 0) ? jugadores[i].longitudRuta : INT_MAX;
             if (steps == minSteps) {
-                indices[cnt++] = i; // guardamos índice en el array
+                indices[cnt++] = i; // guardar índice en el array
             }
         }
     }

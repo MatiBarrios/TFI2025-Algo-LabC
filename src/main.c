@@ -50,7 +50,6 @@ int main() {
 
             if (opcionMapa == 1) {
                 //COLOCAR AQUI EL MAPA POR DEFECTO
-                //SI LEE ESTO PROFE, ACÁ ES DONDE VA ESE MAPA DE PRUEBA
                 // Sugerir por defecto: data/ejemplos_entrada.txt
                 char ruta[256];
                 io_leer_ruta_archivo(ruta, sizeof(ruta), "datos/ejemplos_entrada.txt");
@@ -65,7 +64,7 @@ int main() {
             } 
             else if (opcionMapa == 2) {
                 int f, c;
-                printf("Ingrese filas y columnas (ej: 10 10): ");
+                printf("Ingrese la cantidad de filas y columnas que desea (ej: 10 10): ");
                 if (scanf("%d %d", &f, &c) != 2 || f <= 0 || c <= 0 || 
                     f > MAX_FILAS || c > MAX_COLUMNAS) {
                     printf("X Dimensiones invalidas\n");
