@@ -184,15 +184,30 @@ int main() {
                 mostrar_resultado_jugador(&jugadores[i], pMapa);
             }
 
-            // Determinar ganador
-            Jugador* ganador = encontrarGanador(jugadores, numJugadores);
-            
-            if (ganador) {
-                printf("\n:D GANADOR: Jugador %d con distancia %d\n", 
-                       ganador->id, ganador->distanciaTotal);
+            // Determinar ganador(es)
+            int winners[MAX_JUGADORES];
+            int nw = determinar_ganadores(jugadores, numJugadores, winners, MAX_JUGADORES);
+
+            if (nw == 0) {
+                printf("\nX  Nadie gano\n");
+            } else if (nw == 1) {
+                Jugador* ganador = &jugadores[winners[0]];
+                printf("\n:D GANADOR: Jugador %d con distancia %d y pasos %d\n",
+                    ganador->id, ganador->distanciaTotal, ganador->longitudRuta);
                 guardar_mejor_jugador(ganador);
             } else {
-                printf("\nX  Nadie gano\n");
+                // empate múltiple: todos los de 'winners' son ganadores
+                int idx0 = winners[0];
+                printf("\nEMPATE entre %d jugadores! distancia=%d pasos=%d\n",
+                    nw, jugadores[idx0].distanciaTotal, jugadores[idx0].longitudRuta);
+
+
+                printf("Ganadores: ");
+                for (int k = 0; k < nw; k++) {
+                    int idx = winners[k];
+                    printf("%d%s", jugadores[idx].id, (k + 1 < nw) ? ", " : "\n");
+                    guardar_mejor_jugador(&jugadores[idx]);
+                }
             }
 
             // Liberar memoria

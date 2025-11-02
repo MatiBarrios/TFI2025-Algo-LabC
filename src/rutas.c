@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "rutas.h"
 #include "mapa.h"
+#include <limits.h> // añadir si no está al inicio del archivo
+
 
 // Predecesores para reconstruir ruta
 static int predX[MAX_FILAS][MAX_COLUMNAS];
@@ -215,4 +217,37 @@ void calcularDistanciasDesde(const Mapa* mapa, int inicioX, int inicioY, int dis
     }
         //ME MOLESTA UNA BANDA LA CANTIDAD DE COMENTARIOS QUE PONE ESTA COSA MIENTRAS VOY ESCRIBIENDO AHHHHHHHHHHHHHHH
     heap_free(&heap);
+}
+
+
+int determinar_ganadores(Jugador* jugadores, int num_jugadores, int indices[], int max_indices) {
+    if (num_jugadores <= 0 || !jugadores || !indices || max_indices <= 0) return 0;
+
+    int bestDist = INF;
+    for (int i = 0; i < num_jugadores; i++) {
+        if (jugadores[i].distanciaTotal < bestDist) bestDist = jugadores[i].distanciaTotal;
+    }
+
+    if (bestDist == INF) return 0; // nadie alcanzó salida
+
+    // entre los que tienen bestDist, buscar menor cantidad de pasos
+    int minSteps = INT_MAX;
+    for (int i = 0; i < num_jugadores; i++) {
+        if (jugadores[i].distanciaTotal == bestDist) {
+            int steps = (jugadores[i].longitudRuta > 0) ? jugadores[i].longitudRuta : INT_MAX;
+            if (steps < minSteps) minSteps = steps;
+        }
+    }
+
+    // colectar todos los jugadores que cumplen bestDist && minSteps
+    int cnt = 0;
+    for (int i = 0; i < num_jugadores && cnt < max_indices; i++) {
+        if (jugadores[i].distanciaTotal == bestDist) {
+            int steps = (jugadores[i].longitudRuta > 0) ? jugadores[i].longitudRuta : INT_MAX;
+            if (steps == minSteps) {
+                indices[cnt++] = i; // guardamos índice en el array
+            }
+        }
+    }
+    return cnt;
 }
