@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "rutas.h"
 #include "mapa.h"
-#include <limits.h> // añadir si no está al inicio del archivo
+#include <limits.h> // Añadir si no está al inicio del archivo
 
 
 // Predecesores para reconstruir ruta
@@ -20,8 +20,8 @@ typedef struct {
 
 typedef struct {
     HeapNode* a;
-    int n;       // tamaño actual
-    int cap;     // capacidad
+    int n;       // Tamaño actual
+    int cap;     // Capacidad
 } MinHeap;
 
 static void heap_swap(HeapNode* p, HeapNode* q) { HeapNode t = *p; *p = *q; *q = t; }
@@ -54,7 +54,7 @@ static int heap_init(MinHeap* h, int cap) {
 }
 
 static void heap_push(MinHeap* h, int x, int y, int d) {
-    if (h->n >= h->cap) return; // silenciar overflow (cap suficiente)
+    if (h->n >= h->cap) return; // Silenciar overflow (cap suficiente)
     h->a[h->n] = (HeapNode){x, y, d};
     heap_up(h, h->n);
     h->n++;
@@ -89,7 +89,7 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
     // Heap con capacidad suficiente
     MinHeap heap;
     if (!heap_init(&heap, MAX_FILAS * MAX_COLUMNAS + 5)) {
-        // Si no hay memoria, dejar distancias=INF y retornar
+        // Dejar distancias=INF y retornar, si no hay memoria
         return;
     }
 
@@ -113,7 +113,7 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
         for (int k = 0; k < 4; k++) {
             int nx = cur.x + DX[k];
             int ny = cur.y + DY[k];
-            if (!esValida(mapa, nx, ny)) continue;           // descartar fuera de rango u obstáculo
+            if (!esValida(mapa, nx, ny)) continue;           // Descartar fuera de rango u obstáculo
 
             int peso = (mapa->datos[nx][ny] == SALIDA) ? 0 : mapa->datos[nx][ny];
             int nd = cur.d + peso;
@@ -228,9 +228,9 @@ int determinar_ganadores(Jugador* jugadores, int num_jugadores, int indices[], i
         if (jugadores[i].distanciaTotal < bestDist) bestDist = jugadores[i].distanciaTotal;
     }
 
-    if (bestDist == INF) return 0; // nadie alcanzó salida
+    if (bestDist == INF) return 0; // Comunicar que nadie alcanzó una salida
 
-    // entre los que tienen bestDist, buscar menor cantidad de pasos
+    // Buscar menor cantidad de pasos entre los que tienen bestDist
     int minSteps = INT_MAX;
     for (int i = 0; i < num_jugadores; i++) {
         if (jugadores[i].distanciaTotal == bestDist) {
@@ -239,13 +239,13 @@ int determinar_ganadores(Jugador* jugadores, int num_jugadores, int indices[], i
         }
     }
 
-    // colectar todos los jugadores que cumplen bestDist && minSteps
+    // Colectar todos los jugadores que cumplen bestDist && minSteps
     int cnt = 0;
     for (int i = 0; i < num_jugadores && cnt < max_indices; i++) {
         if (jugadores[i].distanciaTotal == bestDist) {
             int steps = (jugadores[i].longitudRuta > 0) ? jugadores[i].longitudRuta : INT_MAX;
             if (steps == minSteps) {
-                indices[cnt++] = i; // guardar índice en el array
+                indices[cnt++] = i; // Guardar índice en el array
             }
         }
     }

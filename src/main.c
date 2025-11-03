@@ -49,8 +49,8 @@ int main() {
             CodigoError errorCarga = OK;
 
             if (opcionMapa == 1) {
-                //COLOCAR AQUI EL MAPA POR DEFECTO
-                // Sugerir por defecto: data/ejemplos_entrada.txt
+                //Colocar aqui mapa por defecto
+                //Sugerir por defecto: data/ejemplos_entrada.txt
                 char ruta[256];
                 io_leer_ruta_archivo(ruta, sizeof(ruta), "datos/ejemplos_entrada.txt");
 
@@ -116,7 +116,7 @@ int main() {
                 }
                 if (nEx == 0) {
                     printf("No hay salidas en el mapa.\n");
-                    calcularDistancias(pMapa, distancias); // fallback
+                    calcularDistancias(pMapa, distancias); // Fallback
                 } else {
                     int idx = 0;
                     printf("Seleccione numero de salida (1-%d): ", nEx);

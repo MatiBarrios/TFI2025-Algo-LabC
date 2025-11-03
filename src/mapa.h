@@ -16,7 +16,8 @@ typedef struct {
 #define celdas datos
 #endif
 
-// API
+//Comunicar e intercambiar datos 
+
 CodigoError cargarMapa(const char* nombreArchivo, Mapa* mapa);
 Mapa* generarMapaAleatorio(int filas, int columnas);
 void mostrarMapa(const Mapa* mapa);

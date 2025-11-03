@@ -145,7 +145,7 @@ void mostrarMapa(const Mapa* mapa) {
     }
     printf("\n");
 
-        //CAMBIAR LOS PESOS -1 Y 0
+        //Cambiar los pesos -1 y 0
     for (int i = 0; i < mapa->filas; i++) {
         printf("%2d ", i);
         for (int j = 0; j < mapa->columnas; j++) {
