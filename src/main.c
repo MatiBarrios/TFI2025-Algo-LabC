@@ -16,7 +16,7 @@ int main() {
         printf("\n----------------- MENU -----------------\n");
         printf("1. Ver resultados de las mejores jugadas\n");
         printf("2. Comenzar partida\n");
-        printf("0. Salir\n"); //se puede salir con ctrl+C, pero dio error en la prueba anterior
+        printf("0. Salir\n"); //Se puede salir con ctrl+C, pero dio error en la prueba anterior
         printf("Seleccione una opcion: ");
         
         if (scanf("%d", &opcionMenu) != 1) {
@@ -195,7 +195,7 @@ int main() {
                     ganador->id, ganador->distanciaTotal, ganador->longitudRuta);
                 guardar_mejor_jugador(ganador);
             } else {
-                // empate múltiple: todos los de 'winners' son ganadores
+                // Empate múltiple: todos los de 'winners' son ganadores
                 int idx0 = winners[0];
                 printf("\nEMPATE entre %d jugadores! distancia=%d pasos=%d\n",
                     nw, jugadores[idx0].distanciaTotal, jugadores[idx0].longitudRuta);
