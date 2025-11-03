@@ -30,7 +30,7 @@ int main() {
             mostrar_mejores_archivo();
         } 
         else if (opcionMenu == 2) {
-            // Selección de mapa
+            // Seleccionar mapa
             printf("\n----- SELECCIONAR MAPA -----\n");
             printf("1. Cargar mapa desde archivo\n");
             printf("2. Generar mapa aleatorio\n");

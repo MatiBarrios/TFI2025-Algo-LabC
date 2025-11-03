@@ -4,16 +4,16 @@
 #include "tipos.h"
 #include "mapa.h"
 
-// Determina los jugadores ganadores (los que tienen la menor distancia total)
+// Determinar los ganadores (los que tienen la menor distancia total)
 int determinar_ganadores(Jugador* jugadores, int num_jugadores, int indices[], int max_indices);
 
-// Calcula distancias mínimas desde TODAS las salidas (0) a cada celda
+// Calcular distancias mínimas desde TODAS las salidas (0) a cada celda
 void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS]);
 
-// Calcula distancias mínimas desde una celda específica (inicioX,inicioY)
+// Calcular distancias mínimas desde una celda específica (inicioX,inicioY)
 void calcularDistanciasDesde(const Mapa* mapa, int inicioX, int inicioY, int distancias[MAX_FILAS][MAX_COLUMNAS]);
 
-// Reconstruye la ruta desde (inicioX,inicioY) hasta la salida más cercana
+// Reconstruir ruta desde (inicioX,inicioY) hasta la salida más cercana
 Posicion* encontrarRuta(const Mapa* mapa,
                         const int distancias[MAX_FILAS][MAX_COLUMNAS],
                         int inicioX, int inicioY, int* longitudRuta);

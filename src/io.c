@@ -42,7 +42,7 @@ CodigoError guardar_mapa_txt(const Mapa* mapa, const char* ruta) {
     if (!mapa || !ruta) return ERROR_FORMATO_INVALIDO;
 
     // Crear carpeta "datos" si corresponde
-    // Esto es suficiente para datos/ultimo_random.txt
+    
     MKDIR("datos");
 
     FILE* f = fopen(ruta, "w");

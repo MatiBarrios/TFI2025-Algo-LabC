@@ -6,7 +6,7 @@
 
 void inicializarJugadores(Jugador* jugadores, int numJugadores);
 
-// Valida y asigna posición
+// Validar y asignar posición
 CodigoError asignarPosicionJugador(Jugador* jugador, int x, int y, const Mapa* mapa);
 
 void calcularRutasJugadores(Jugador* jugadores, int numJugadores,

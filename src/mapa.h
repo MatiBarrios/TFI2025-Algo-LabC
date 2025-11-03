@@ -3,7 +3,7 @@
 
 #include "tipos.h"
 
-// Representación del mapa
+// Representar mapa
 typedef struct {
     int datos[MAX_FILAS][MAX_COLUMNAS];
     int filas;

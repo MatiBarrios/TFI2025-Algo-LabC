@@ -89,7 +89,7 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
     // Heap con capacidad suficiente
     MinHeap heap;
     if (!heap_init(&heap, MAX_FILAS * MAX_COLUMNAS + 5)) {
-        // Si no hay memoria, dejamos distancias=INF y retornamos
+        // Si no hay memoria, dejar distancias=INF y retornar
         return;
     }
 
@@ -113,7 +113,7 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
         for (int k = 0; k < 4; k++) {
             int nx = cur.x + DX[k];
             int ny = cur.y + DY[k];
-            if (!esValida(mapa, nx, ny)) continue;           // descarta fuera de rango u obstáculo
+            if (!esValida(mapa, nx, ny)) continue;           // descartar fuera de rango u obstáculo
 
             int peso = (mapa->datos[nx][ny] == SALIDA) ? 0 : mapa->datos[nx][ny];
             int nd = cur.d + peso;
@@ -147,7 +147,7 @@ Posicion* encontrarRuta(const Mapa* mapa,
     // Agregar inicio
     ruta[len++] = (Posicion){x, y};
 
-    // Si ya estamos en la salida
+    // Si ya se encuentra en la salida
     if (mapa->datos[x][y] == SALIDA) {
         *longitudRuta = len;
         return ruta;

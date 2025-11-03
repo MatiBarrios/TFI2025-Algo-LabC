@@ -145,7 +145,7 @@ void mostrarMapa(const Mapa* mapa) {
     }
     printf("\n");
 
-        //CAMBIAMOS LOS PESOS -1 Y 0, ESTAN PUESTOS COMO OBSTACULO Y SALIDA PARA DARLE MÁS FLOW NOMÁS PORQUE APARECE EN UN TUTO INDIO JKLASDLJKASDLJKASD
+        //CAMBIAR LOS PESOS -1 Y 0
     for (int i = 0; i < mapa->filas; i++) {
         printf("%2d ", i);
         for (int j = 0; j < mapa->columnas; j++) {
