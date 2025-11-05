@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include "rutas.h"
 #include "mapa.h"
-#include <limits.h> // Añadir si no está al inicio del archivo
-
+#include <limits.h> 
 
 // Predecesores para reconstruir ruta
 static int predX[MAX_FILAS][MAX_COLUMNAS];
@@ -13,71 +12,51 @@ static int predY[MAX_FILAS][MAX_COLUMNAS];
 static const int DX[4] = {-1, 0, 1, 0};
 static const int DY[4] = {0, 1, 0, -1};
 
-// Cola de prioridad mínima (bin-heap) para Dijkstra
+// no me gusta usar esto global, pero es lo que hay
+// no sabía que nombre colocarle al nodo, se llamaba nododeodo
+// pero la IA me dijo que no era adecuado
 typedef struct {
     int x, y, d;
-} HeapNode;
+} NodoFrontera;
 
 typedef struct {
-    HeapNode* a;
-    int n;       // Tamaño actual
-    int cap;     // Capacidad
-} MinHeap;
+    NodoFrontera* a;
+    int n;    // tam
+    int cap;
+} Frontera;
 
-static void heap_swap(HeapNode* p, HeapNode* q) { HeapNode t = *p; *p = *q; *q = t; }
-
-static void heap_up(MinHeap* h, int i) {
-    while (i > 0) {
-        int p = (i - 1) / 2;
-        if (h->a[p].d <= h->a[i].d) break;
-        heap_swap(&h->a[p], &h->a[i]);
-        i = p;
-    }
+//lo mismo para estas weas
+static int frontera_inicializar(Frontera* f, int cap) {
+    f->a = (NodoFrontera*)malloc(sizeof(NodoFrontera) * cap);
+    f->n = 0;
+    f->cap = cap;
+    return f->a != NULL;
 }
 
-static void heap_down(MinHeap* h, int i) {
-    while (1) {
-        int l = 2 * i + 1, r = 2 * i + 2, m = i;
-        if (l < h->n && h->a[l].d < h->a[m].d) m = l;
-        if (r < h->n && h->a[r].d < h->a[m].d) m = r;
-        if (m == i) break;
-        heap_swap(&h->a[i], &h->a[m]);
-        i = m;
-    }
+static void frontera_agregar(Frontera* f, int x, int y, int d) {
+    if (f->n >= f->cap) return;
+    int pos = 0;
+    while (pos < f->n && f->a[pos].d <= d) pos++;
+    for (int j = f->n; j > pos; j--) f->a[j] = f->a[j - 1];
+    f->a[pos] = (NodoFrontera){x, y, d};
+    f->n++;
 }
 
-static int heap_init(MinHeap* h, int cap) {
-    h->a = (HeapNode*)malloc(sizeof(HeapNode) * cap);
-    h->n = 0;
-    h->cap = cap;
-    return h->a != NULL;
-}
-
-static void heap_push(MinHeap* h, int x, int y, int d) {
-    if (h->n >= h->cap) return; // Silenciar overflow (cap suficiente)
-    h->a[h->n] = (HeapNode){x, y, d};
-    heap_up(h, h->n);
-    h->n++;
-}
-
-static int heap_pop(MinHeap* h, HeapNode* out) {
-    if (h->n == 0) return 0;
-    *out = h->a[0];
-    h->n--;
-    if (h->n > 0) {
-        h->a[0] = h->a[h->n];
-        heap_down(h, 0);
-    }
+static int frontera_tomar(Frontera* f, NodoFrontera* out) {
+    if (f->n == 0) return 0;
+    *out = f->a[0];
+    for (int i = 0; i + 1 < f->n; i++) f->a[i] = f->a[i + 1];
+    f->n--;
     return 1;
 }
 
-static void heap_free(MinHeap* h) {
-    free(h->a);
-    h->a = NULL; h->n = h->cap = 0;
+static void frontera_liberar(Frontera* f) {
+    free(f->a);
+    f->a = NULL; f->n = f->cap = 0;
 }
 
 void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS]) {
-    // Inicializar distancias y predecesores
+    // Inicializar distancias
     for (int i = 0; i < mapa->filas; i++) {
         for (int j = 0; j < mapa->columnas; j++) {
             distancias[i][j] = INF;
@@ -86,34 +65,32 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
         }
     }
 
-    // Heap con capacidad suficiente
-    MinHeap heap;
-    if (!heap_init(&heap, MAX_FILAS * MAX_COLUMNAS + 5)) {
-        // Dejar distancias=INF y retornar, si no hay memoria
+    Frontera frontera;
+    if (!frontera_inicializar(&frontera, MAX_FILAS * MAX_COLUMNAS + 5)) {
         return;
     }
 
-    // Insertar todas las salidas como origen (distancia 0)
+    // temgp sie´pp
     for (int i = 0; i < mapa->filas; i++) {
         for (int j = 0; j < mapa->columnas; j++) {
             if (mapa->datos[i][j] == SALIDA) {
                 distancias[i][j] = 0;
                 predX[i][j] = -1;
                 predY[i][j] = -1;
-                heap_push(&heap, i, j, 0);
+                frontera_agregar(&frontera, i, j, 0);
             }
         }
     }
 
     // Dijkstra
-    HeapNode cur;
-    while (heap_pop(&heap, &cur)) {
+    NodoFrontera cur;
+    while (frontera_tomar(&frontera, &cur)) {
         if (cur.d != distancias[cur.x][cur.y]) continue;
 
         for (int k = 0; k < 4; k++) {
             int nx = cur.x + DX[k];
             int ny = cur.y + DY[k];
-            if (!esValida(mapa, nx, ny)) continue;           // Descartar fuera de rango u obstáculo
+            if (!esValida(mapa, nx, ny)) continue;
 
             int peso = (mapa->datos[nx][ny] == SALIDA) ? 0 : mapa->datos[nx][ny];
             int nd = cur.d + peso;
@@ -121,12 +98,12 @@ void calcularDistancias(const Mapa* mapa, int distancias[MAX_FILAS][MAX_COLUMNAS
                 distancias[nx][ny] = nd;
                 predX[nx][ny] = cur.x;
                 predY[nx][ny] = cur.y;
-                heap_push(&heap, nx, ny, nd);
+                frontera_agregar(&frontera, nx, ny, nd);
             }
         }
     }
 
-    heap_free(&heap);
+    frontera_liberar(&frontera);
 }
 
 Posicion* encontrarRuta(const Mapa* mapa,
@@ -187,19 +164,19 @@ void calcularDistanciasDesde(const Mapa* mapa, int inicioX, int inicioY, int dis
     if (inicioX < 0 || inicioX >= mapa->filas || inicioY < 0 || inicioY >= mapa->columnas) return;
     if (mapa->datos[inicioX][inicioY] != SALIDA) return; // Se espera una salida como fuente
 
-    // Heap con capacidad suficiente
-    MinHeap heap;
-    if (!heap_init(&heap, MAX_FILAS * MAX_COLUMNAS + 5)) return;
+    // Frontera con capacidad suficiente
+    Frontera frontera;
+    if (!frontera_inicializar(&frontera, MAX_FILAS * MAX_COLUMNAS + 5)) return;
 
     // Insertar solo la salida seleccionada como origen (distancia 0)
     distancias[inicioX][inicioY] = 0;
     predX[inicioX][inicioY] = -1;
     predY[inicioX][inicioY] = -1;
-    heap_push(&heap, inicioX, inicioY, 0);
+    frontera_agregar(&frontera, inicioX, inicioY, 0);
 
     // Dijkstra (mismo cuerpo que calcularDistancias)
-    HeapNode cur;
-    while (heap_pop(&heap, &cur)) {
+    NodoFrontera cur;
+    while (frontera_tomar(&frontera, &cur)) {
         if (cur.d != distancias[cur.x][cur.y]) continue;
         for (int k = 0; k < 4; k++) {
             int nx = cur.x + DX[k];
@@ -211,12 +188,12 @@ void calcularDistanciasDesde(const Mapa* mapa, int inicioX, int inicioY, int dis
                 distancias[nx][ny] = nd;
                 predX[nx][ny] = cur.x;
                 predY[nx][ny] = cur.y;
-                heap_push(&heap, nx, ny, nd);
+                frontera_agregar(&frontera, nx, ny, nd);
             }
         }
     }
 
-    heap_free(&heap);
+    frontera_liberar(&frontera);
 }
 
 
@@ -245,9 +222,12 @@ int determinar_ganadores(Jugador* jugadores, int num_jugadores, int indices[], i
         if (jugadores[i].distanciaTotal == bestDist) {
             int steps = (jugadores[i].longitudRuta > 0) ? jugadores[i].longitudRuta : INT_MAX;
             if (steps == minSteps) {
-                indices[cnt++] = i; // Guardar índice en el array
+                indices[cnt++] = i;
             }
         }
     }
     return cnt;
 }
+
+//si los comentarios son demasiado lindos es responsabilidad de la IA
+// y de Yara

@@ -2,6 +2,8 @@
     "files.associations": {
         "mapa.h": "c",
         "time.h": "c",
-        "tipos.h": "c"
+        "tipos.h": "c",
+        "stdlib.h": "c",
+        "limits.h": "c"
     }
 }
